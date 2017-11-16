@@ -142,13 +142,13 @@ static void drift(){
 }
 
 static void kick(){
-    ofstream myfile ("simplify.txt", ios_base::app);
+    //ofstream myfile ("simplify.txt", ios_base::app);
     for(unsigned int i=0; i<N; i++){
-        myfile << "+++++++++++" << i << "th+++++++++++" << endl;
+        //myfile << "+++++++++++" << i << "th+++++++++++" << endl;
         p_int[i].vx += (REB_PARTICLE_INT_TYPE)(dt * p_int[i].ax);
         p_int[i].vy += (REB_PARTICLE_INT_TYPE)(dt * p_int[i].ay);
         p_int[i].vz += (REB_PARTICLE_INT_TYPE)(dt * p_int[i].az);
-        myfile << "vx:" << p_int[i].vx << " vy:" << p_int[i].vy << " vz:" << p_int[i].vz << endl;
+        //myfile << "vx:" << p_int[i].vx << " vy:" << p_int[i].vy << " vz:" << p_int[i].vz << endl;
     }
 }
 
@@ -164,7 +164,7 @@ static void gravity(){
                 const double dy = (p_int[i].y - p_int[j].y)*1e-16;
                 const double dz = (p_int[i].z - p_int[j].z)*1e-16;
                 const double _r = (double)(sqrt(dx*dx + dy*dy + dz*dz)*1e16);
-                myfile << "r is:" << _r << endl;
+                //myfile << "r is:" << _r << endl;
                 const double prefact = -1/(_r*_r*_r)*p_int[j].m;
                 
                 p_int[i].ax    += prefact*dx;
@@ -209,23 +209,14 @@ int main(){
     while (t<2.*M_PI*1e1){ // 1 year
         i += 1;
         janus_step();
+
+        //this to_double() only used to generate intermediate results
+        //calculations are not doen on p since the first to_int()
+        to_double();
         myfile << "------------" << i << "th----------" << endl;
         for(int i=0;i<N;i++){
-            myfile << p[i].x << "," << p[i].y << endl;
+            myfile << p[i].vx << "," << p[i].vy << endl;
         }
     }
-
-    //janus_step();
-
-    to_double();
-
-    myfile.close();
-    ofstream yourfile ("simplify.txt", ios_base::app);
-    yourfile.precision(dbl::max_digits10);
-    for(int i=0;i<N;i++){
-        yourfile << p[i].x << "," << p[i].y << endl;
-    }
-
-    yourfile.close();
     return 1;
 }
