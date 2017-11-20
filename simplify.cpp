@@ -13,7 +13,7 @@ const double scale_vel  = 1e-16;
 const double scale_pos  = 1e-16;
 
 // INT datatype used
-#define REB_PARTICLE_INT_TYPE int64_t
+ #define REB_PARTICLE_INT_TYPE int64_t
 
 struct reb_particle_int {
     REB_PARTICLE_INT_TYPE x;
@@ -28,18 +28,18 @@ struct reb_particle_int {
     REB_PARTICLE_INT_TYPE m;
 };
 
-struct reb_particle_int_drift_temp {
-    REB_PARTICLE_INT_TYPE x;
-    REB_PARTICLE_INT_TYPE y;
-    REB_PARTICLE_INT_TYPE z;
-};
+// struct reb_particle_int_drift_temp {
+//     REB_PARTICLE_INT_TYPE x;
+//     REB_PARTICLE_INT_TYPE y;
+//     REB_PARTICLE_INT_TYPE z;
+// };
 
 double t = 0;
 const double dt = 0.01;
 
 const unsigned int N = 9;
 struct reb_particle_int* p_int = NULL;
-struct reb_particle_int_drift_temp* p_int_drift_temp = NULL;
+// struct reb_particle_int_drift_temp* p_int_drift_temp = NULL;
 
 struct reb_particle {
     double x;
@@ -111,9 +111,9 @@ static void to_int(){
         p_int[i].vx = p[i].vx/scale_vel; 
         p_int[i].vy = p[i].vy/scale_vel; 
         p_int[i].vz = p[i].vz/scale_vel;
-        p_int[i].ax = p[i].ax/scale_vel;
-        p_int[i].ay = p[i].ay/scale_vel;
-        p_int[i].az = p[i].az/scale_vel;
+        //p_int[i].ax = p[i].ax/scale_vel;
+        //p_int[i].ay = p[i].ay/scale_vel;
+        //p_int[i].az = p[i].az/scale_vel;
         p_int[i].m = p[i].m/scale_vel;
     }
 }
@@ -154,18 +154,29 @@ static void kick(){
 
 static void gravity(){
     ofstream myfile ("simplify.txt", ios_base::app);
+    double temp[N][3];
+
+    for(unsigned iter = 0; iter < N; iter ++){
+    	temp[iter][0] = p_int[iter].x * 1e-16;
+    	temp[iter][1] = p_int[iter].y * 1e-16;
+    	temp[iter][2] = p_int[iter].z * 1e-16;
+    }
+
+
     for(unsigned int i=0; i<N; i++){
-        p_int[i].ax = 0.;
-        p_int[i].ay = 0.;
-        p_int[i].az = 0.;
+        p_int[i].ax = 0;
+        p_int[i].ay = 0;
+        p_int[i].az = 0;
+
+
         for(unsigned int j=0; j<N; j++){
             if (i!=j){
-                const double dx = (p_int[i].x - p_int[j].x)*1e-16;
-                const double dy = (p_int[i].y - p_int[j].y)*1e-16;
-                const double dz = (p_int[i].z - p_int[j].z)*1e-16;
-                const double _r = (double)(sqrt(dx*dx + dy*dy + dz*dz)*1e16);
+                const double dx = (temp[i][0] - temp[j][0]);
+                const double dy = (temp[i][1] - temp[j][1]);
+                const double dz = (temp[i][2] - temp[j][2]);
+                const double _r = (double)(sqrt(dx*dx + dy*dy + dz*dz));
                 //myfile << "r is:" << _r << endl;
-                const double prefact = -1/(_r*_r*_r)*p_int[j].m;
+                const double prefact = -1.0/(_r*_r*_r)*p_int[j].m;
                 
                 p_int[i].ax    += prefact*dx;
                 p_int[i].ay    += prefact*dy;
@@ -179,16 +190,12 @@ void janus_step(){
     // One leapfrog step
     drift();
     
-    //to_double(); 
     gravity();
     kick();
 
     drift();
 
     t += dt;
-    
-    // Only needed for floating point outputs 
-    //to_double(); 
 }
 
 int main(){
