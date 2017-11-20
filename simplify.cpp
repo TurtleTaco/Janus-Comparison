@@ -174,7 +174,7 @@ static void gravity(){
                 const double dx = (temp[i][0] - temp[j][0]);
                 const double dy = (temp[i][1] - temp[j][1]);
                 const double dz = (temp[i][2] - temp[j][2]);
-                const double _r = (double)(sqrt(dx*dx + dy*dy + dz*dz));
+                const double _r = (double)(sqrt(dx*dx + dy*dy + dz*dz)) * 1; // coefficient 1 is derived from linearizing gravity equation
                 //myfile << "r is:" << _r << endl;
                 const double prefact = -1.0/(_r*_r*_r)*p_int[j].m;
                 
